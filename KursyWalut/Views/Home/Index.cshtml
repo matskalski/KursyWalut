@@ -1,0 +1,91 @@
+﻿@model KursyWalut.ViewModels.Home.IndexVM
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Kursy walut</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+    </dl>
+</div>
+<div style="float:none; text-align:center">
+    <h3 style="color:brown">Aktualne kursy</h3>
+    @foreach (var rate in Model.Rates)
+    {
+        <h5>@(rate.code + ": " + rate.mid)</h5>
+    }
+</div>
+
+
+<div class="col-lg-12">
+    <h3 style="color:brown">Średnie kursy miesięczne w bieżącym roku</h3><br />
+    <table class="table">
+        <thead>
+            <tr style="background-color:brown; color:white">
+                <th>Miesiąc</th>
+                <th>Średni kurs USD</th>
+                <th>Średni kurs EUR</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var avgRate in Model.AvarageRates)
+            {
+                <tr>
+                    <td>
+                        @avgRate.Month
+                    </td>
+                    <td>
+                        @(Math.Round(avgRate.UsdRate, 4))
+                    </td>
+                    <td>
+                        @(Math.Round(avgRate.EurRate, 4))
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="col-lg-12">
+    <div>
+        <div style="text-align:center">
+            <h3 style="color:brown">Kursy w miesiącu bieżącym</h3><br />
+            Wybierz walutę<br />
+            <select id="select" asp-for="CurrencyCodes" asp-items="Html.GetEnumSelectList<KursyWalut.Enums.CurrencyCodes>()" onchange="GenerateTabele()">
+                <option selected="selected" value="">Please select</option>
+            </select>
+        </divstyle="text-align:center">
+
+        <div id="ratesHistory" style="text-align:center;">
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function GenerateTabele() {
+
+        var sel = document.getElementById("select");
+        var code = sel.options[sel.selectedIndex].value;
+
+        console.log(code);
+
+          $.ajax({
+              type: 'GET',
+              url:  '@Url.Action("GetRateHistory", "Home")',
+              data: { id: code },
+              success: function (Response) {
+
+                  $('#ratesHistory').html(Response)
+              },
+              error: function () {
+                  alert("Proszę wybrać kod waluty");
+              }
+          });
+      }
+</script>
